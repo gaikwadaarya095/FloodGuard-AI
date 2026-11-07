@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FloodGuard AI | India Flood Intelligence</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<style>
+:root{--ink:#142b49;--muted:#6c8099;--line:#dce7f2;--blue:#2769d8;--cyan:#0ba8ba;--bg:#eef4fa;--card:#fff;--navy:#0c2038;--red:#ed5361;--orange:#f49b38;--yellow:#e8c94e;--green:#41b98b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button,select{cursor:pointer}.hidden{display:none!important}
+.top{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:22px;padding:0 22px;position:sticky;top:0;z-index:700;box-shadow:0 3px 14px #17395a08}.brand{display:flex;align-items:center;gap:11px;min-width:235px}.logo{height:42px;width:42px;border-radius:13px;background:linear-gradient(145deg,#2e7ce5,#12bdc3);display:grid;place-items:center;color:#fff;font-size:23px;font-weight:900}.brand strong{font-size:17px;letter-spacing:-.4px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.3px}.search{flex:1;max-width:550px;position:relative}.search input{width:100%;border:1px solid var(--line);background:#f5f8fc;border-radius:11px;padding:12px 14px 12px 38px;outline:none;color:var(--ink)}.search:before{content:"⌕";position:absolute;left:14px;top:7px;font-size:23px;color:#6f88a5}.topright{margin-left:auto;display:flex;align-items:center;gap:16px}.live{font-size:11px;color:#238a6d;white-space:nowrap}.live:before{content:"";display:inline-block;width:7px;height:7px;background:#36b78b;border-radius:50%;margin-right:7px}.profile{height:39px;width:39px;border-radius:50%;border:1px solid #d7e3ef;background:#eaf2fc;color:#2057a4;font-weight:800}
+.shell{display:grid;grid-template-columns:205px minmax(0,1fr);min-height:calc(100vh - 72px)}@media(max-width:1100px){.shell{grid-template-columns:165px minmax(0,1fr)}main{padding:14px}.grid{grid-template-columns:minmax(0,1fr)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.top{padding:0 12px;gap:10px}.brand{min-width:190px}}@media(max-width:700px){.shell{display:block}.side{display:none}.top{height:auto;min-height:65px;flex-wrap:wrap;padding:10px}.brand{min-width:0}.topright{display:none}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.head{display:block}.controls{margin-top:10px}.maparea{height:420px}}.side{background:#fff;border-right:1px solid var(--line);padding:20px 12px;display:flex;flex-direction:column;gap:5px}.nav{border:0;background:transparent;text-align:left;padding:12px 13px;border-radius:10px;color:#526b88;display:flex;gap:12px;align-items:center}.nav span{width:18px;text-align:center;font-size:17px}.nav.active,.nav:hover{background:#eaf2ff;color:#225fcb;font-weight:700}.sidefoot{margin-top:auto;background:linear-gradient(160deg,#eaf6ff,#e4f8f8);border:1px solid #d4e9f3;border-radius:13px;padding:13px;font-size:11px;color:#55718d}.sidefoot b{color:#126a94;display:block;margin-bottom:5px}
+main{padding:20px;min-width:0;max-width:1800px;width:100%;margin:0 auto}.head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:16px}.eyebrow{font-size:10px;letter-spacing:1.4px;font-weight:800;color:#1688a6}.head h1{font-size:25px;letter-spacing:-.7px;margin:3px 0 4px}.sub{font-size:12px;color:var(--muted)}.controls{display:flex;gap:8px;flex-wrap:wrap}.select,.btn{padding:10px 12px;border:1px solid #d2e0ee;background:#fff;border-radius:10px;color:#284664}.btn.primary{background:var(--blue);border-color:var(--blue);color:white;font-weight:700}.btn:hover{filter:brightness(.98);box-shadow:0 2px 8px #123b6210}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:13px}.stat,.panel{background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:0 4px 15px #1c477006}.stat{padding:15px 16px}.stathead{display:flex;justify-content:space-between;color:#6d8198;font-size:11px}.ico{height:31px;width:31px;border-radius:9px;display:grid;place-items:center;background:#eaf2ff;color:#2769d8;font-size:16px}.num{font-size:27px;letter-spacing:-.8px;font-weight:800;margin:10px 0 3px;color:#142d4d}.hint{font-size:10px;color:#7b8da3}.pill{display:inline-block;font-size:9px;font-weight:800;padding:4px 7px;border-radius:6px;background:#fff4dc;color:#a46b12}
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.95fr);gap:13px;margin-bottom:13px}.panel{padding:15px;min-width:0}.paneltitle{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}.panel h2{font-size:14px;margin:0 0 3px}.panel p{margin:0;color:var(--muted);font-size:10px}.maparea{height:clamp(520px,68vh,760px);border:1px solid #d2e0ed;border-radius:12px;overflow:hidden;position:relative;background:#e2edf5}#map{height:100%;width:100%;min-height:300px}#mapFallback{display:none;position:absolute;inset:0;z-index:420;overflow:auto;background:linear-gradient(145deg,#eaf5fb,#f7fbff);padding:16px}#mapFallback.active{display:block}#mapFallback .fallbackgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:7px}#mapFallback button{border:1px solid #cbddea;border-radius:9px;padding:9px 7px;background:white;color:#234d72;font-size:11px;text-align:left;cursor:pointer}#mapFallback button:hover{background:#eaf2ff;border-color:#7ba7d8}.mapctrl{position:absolute;z-index:450;top:12px;left:12px;right:12px;display:flex;gap:8px;pointer-events:none}.mapctrl select,.mapctrl button{pointer-events:auto;box-shadow:0 2px 9px #17314a20}.mapctrl select{max-width:220px;min-width:0}.mapnote{position:absolute;z-index:450;bottom:12px;left:12px;background:#fffF;border:1px solid #d5e2ef;padding:8px 10px;border-radius:9px;font-size:10px;color:#536b84;max-width:calc(100% - 24px)}.legend{position:absolute;z-index:450;right:12px;bottom:12px;background:#fffF;border:1px solid #d5e2ef;padding:9px 11px;border-radius:10px;font-size:10px;line-height:1.9}.sw{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}.leaflet-container{font:12px system-ui}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;color:#173453}.leaflet-control-attribution{font-size:9px!important}
+.regioncard{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}.regionbox{padding:12px;border-radius:11px;border:1px solid #e0eaf4;background:#f8fbff}.regionbox label{display:block;font-size:10px;color:#72869e;margin-bottom:4px}.regionbox strong{font-size:17px}.riskline{height:7px;border-radius:10px;background:#e8eff6;margin:9px 0 5px;overflow:hidden}.riskline i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,#4ec79b,#f0c64c,#ed5361)}.driver{margin:13px 0}.driverhead{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}.driverhead span{color:#7488a0}.driverbar{height:6px;border-radius:8px;background:#edf2f7;overflow:hidden}.driverbar i{height:100%;display:block;border-radius:8px;background:linear-gradient(90deg,#29b8c6,#3e7de1)}
+.bars{height:160px;display:flex;align-items:flex-end;gap:7px;padding:15px 2px 0;border-bottom:1px solid #dfe8f2;overflow:hidden}.baritem{flex:1;min-width:0;text-align:center}.baritem i{display:block;width:min(30px,75%);margin:0 auto 7px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#50b6e9,#3478df);min-height:3px}.baritem b{display:block;font-size:9px;margin-bottom:3px}.baritem small{font-size:9px;color:#7c8ea3}.chartlegend{display:flex;gap:12px;font-size:10px;color:var(--muted)}.chartlegend i{display:inline-block;width:8px;height:8px;border-radius:2px;background:#4387e3;margin-right:4px}
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:8px}.layer{display:flex;gap:8px;align-items:center;padding:10px;border:1px solid #e1eaf3;background:#f8fbfe;border-radius:9px;font-size:11px;color:#526b86}.layer input{accent-color:#2769d8}.notice{font-size:10px;line-height:1.6;color:#6d8198;background:#f5f9fd;padding:10px;border-radius:9px;margin-top:12px}.alert{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #edf1f6}.alert:last-child{border:0}.alertico{height:29px;width:29px;border-radius:9px;background:#fff0ef;display:grid;place-items:center;color:#d64f58;flex-shrink:0}.alert b{display:block;font-size:11px}.alert small{color:#7b8ea4;font-size:10px}.table{border-collapse:collapse;width:100%;font-size:11px}.table th{text-align:left;color:#7588a0;font-size:9px;text-transform:uppercase;letter-spacing:.6px;padding:9px 5px;border-bottom:1px solid #e5edf5}.table td{padding:10px 5px;border-bottom:1px solid #edf2f7}.tag{font-size:9px;padding:4px 6px;border-radius:5px;background:#fff0d9;color:#a7660b}.tag.high{background:#ffe8e9;color:#c63d4c}.tag.low{background:#e3f8ee;color:#208b64}.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.quick button{text-align:left;border:1px solid #dce7f2;border-radius:11px;padding:12px;background:#fff;color:#264766}.quick b{display:block;font-size:11px;margin:4px 0}.quick small{font-size:9px;color:#7b8da2;line-height:1.4}.foot{font-size:10px;line-height:1.6;color:#7c8fa5;padding:13px 2px}.toast{position:fixed;bottom:18px;right:18px;background:#142d4d;color:#fff;border-radius:10px;padding:12px 15px;z-index:1200;box-shadow:0 8px 30px #142d4d33;max-width:340px;font-size:12px}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}.brand{min-width:190px}.maparea{height:420px}}
+@media(max-width:680px){.top{height:auto;min-height:65px;padding:10px;gap:10px;flex-wrap:wrap}.brand{min-width:0}.brand strong{font-size:14px}.brand small{font-size:9px}.logo{height:35px;width:35px}.search{order:3;max-width:none;flex-basis:100%}.topright{gap:7px}.topright .live{display:none}.shell{grid-template-columns:1fr}.side{position:sticky;top:0;z-index:600;display:flex;flex-direction:row;overflow-x:auto;padding:6px;border-right:0;border-bottom:1px solid var(--line)}.nav{flex-shrink:0;padding:9px;font-size:10px;gap:5px}.nav span{font-size:13px}.sidefoot{display:none}main{padding:12px}.head{display:block}.controls{margin-top:12px}.stats{gap:8px}.stat{padding:12px}.num{font-size:23px}.maparea{height:390px}.mapctrl{flex-wrap:wrap}.mapctrl select{max-width:48%;font-size:11px;padding:9px}.mapctrl button{font-size:11px;padding:9px}.legend{font-size:9px}.regioncard{grid-template-columns:1fr 1fr}.quick{grid-template-columns:1fr 1fr}.layers{grid-template-columns:1fr}.table{font-size:10px}}
+
+.assistant-wrap{margin-top:14px;border-color:#c9ddf5;background:linear-gradient(135deg,#fff 0%,#f4f9ff 100%)}.assistant-head{display:flex;align-items:flex-start;gap:12px}.assistant-icon{height:42px;width:42px;flex-shrink:0;border-radius:13px;background:linear-gradient(145deg,#2769d8,#0ba8ba);color:#fff;display:grid;place-items:center;font-size:21px}.assistant-answer{white-space:pre-wrap;line-height:1.65;font-size:12px;color:#2a4563;background:#fff;border:1px solid #e0eaf5;border-radius:12px;padding:14px;min-height:115px;margin:12px 0}.assistant-actions{display:flex;gap:8px;flex-wrap:wrap}.assistant-actions button{border:1px solid #d3e2f2;background:#fff;color:#27527d;border-radius:999px;padding:8px 11px;font-size:11px}.assistant-ask{display:flex;gap:8px;margin-top:10px}.assistant-ask input{min-width:0;flex:1;border:1px solid #d3e2f2;border-radius:10px;padding:11px 12px;background:#fff;color:var(--ink)}.assistant-foot{font-size:10px;color:#74869b;line-height:1.55;margin-top:9px}@media(max-width:680px){.assistant-ask{flex-direction:column}.assistant-ask button{width:100%}}
+
+
+/* Compact layout + highly visible flood-alert action */
+main{padding:14px;max-width:1900px}.head{margin-bottom:10px}.head h1{font-size:23px}.stats{gap:9px;margin-bottom:9px}.stat{padding:11px 13px}.num{margin:6px 0 2px;font-size:24px}.grid{gap:9px;margin-bottom:9px}.panel{padding:12px;border-radius:13px}.paneltitle{margin-bottom:9px}.regioncard{gap:7px;margin-bottom:9px}.regionbox{padding:9px}.driver{margin:9px 0}.bars{height:145px}.layers{gap:6px}.layer{padding:8px}.assistant-wrap{margin-top:9px}.assistant-answer{min-height:80px;margin:8px 0;padding:10px}.foot{padding:8px 2px}.side{padding:14px 10px}.nav{padding:10px 11px}.head .sub{max-width:680px}
+.alert-header-btn{background:linear-gradient(120deg,#ef4444,#c81e3a)!important;border-color:#c81e3a!important;color:#fff!important;font-weight:800!important}.flood-alert-fab{position:fixed;right:22px;bottom:22px;z-index:1300;display:flex;align-items:center;gap:9px;border:0;border-radius:999px;padding:13px 19px;color:#fff;font-weight:850;letter-spacing:.2px;background:linear-gradient(120deg,#ef4444,#c81e3a);box-shadow:0 8px 28px #c81e3a55;cursor:pointer;animation:alertPulse 2s infinite;transition:transform .2s,box-shadow .2s}.flood-alert-fab:hover{transform:translateY(-2px);box-shadow:0 12px 34px #c81e3a66}.flood-alert-fab .alert-bell{font-size:19px;line-height:1}.flood-alert-fab .alert-copy{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}.flood-alert-fab small{font-size:9px;font-weight:600;opacity:.9;margin-top:4px;letter-spacing:.5px}@keyframes alertPulse{0%,100%{box-shadow:0 8px 28px #c81e3a44}50%{box-shadow:0 8px 30px #c81e3a77,0 0 0 6px #ef44441a}}
+@media(max-width:680px){main{padding:9px}.panel{padding:10px}.stats{gap:7px}.flood-alert-fab{right:12px;bottom:12px;padding:11px 15px}.flood-alert-fab small{display:none}.head h1{font-size:21px}}
+
+/* Softer, low-distraction alert controls */
+.alert-header-btn{background:#f9e5e5!important;border-color:#f0d0d0!important;color:#8d4a50!important;font-weight:650!important;box-shadow:none!important}
+.alert-header-btn:hover{background:#f5dede!important;filter:none!important}
+.flood-alert-fab{background:#f3dada!important;color:#7e4549!important;box-shadow:0 3px 10px #6b303012!important;animation:none!important;font-weight:700!important;transition:background .18s ease,transform .18s ease!important}
+.flood-alert-fab:hover{background:#edcecf!important;box-shadow:0 4px 12px #6b303018!important;transform:translateY(-1px)!important}
+.flood-alert-fab small{opacity:.82!important}
+@media(prefers-reduced-motion:reduce){.flood-alert-fab{transition:none!important}}
+</style>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+<header class="top">
+ <div class="brand"><div class="logo">≈</div><div><strong>FloodGuard AI</strong><small>Smarter insights. Safer tomorrow.</small></div></div>
+ <div class="search"><input id="globalSearch" list="locationOptions" placeholder="Search a state, district or location…" onkeydown="if(event.key==='Enter')searchLocation()"><datalist id="locationOptions"></datalist></div>
+ <div class="topright"><span class="live" id="apiStatus">Weather source connecting</span><span style="font-size:12px;color:#536b84" id="updatedAt">Weather data loading</span><button class="btn alert-header-btn" id="headerAlertButton" onclick="enableFloodNotifications()" title="Enable browser flood-signal notifications">🚨 Enable flood alerts</button><button class="profile" onclick="showProfile()" title="Profile">FG</button></div>
+</header>
+<div class="shell">
+ <aside class="side">
+  <button class="nav active" onclick="scrollToId('dashboard',this)"><span>⌂</span>Dashboard</button>
+  <button class="nav" onclick="scrollToId('map-panel',this)"><span>⌖</span>Map explorer</button>
+  <button class="nav" onclick="scrollToId('risk-panel',this)"><span>◈</span>Risk analysis</button>
+  <button class="nav" onclick="scrollToId('rain-panel',this)"><span>☂</span>Rainfall & weather</button>
+  <button class="nav" onclick="scrollToId('terrain-panel',this)"><span>⌁</span>Terrain & land cover</button>
+  <button class="nav" onclick="scrollToId('exposure-panel',this)"><span>♙</span>Exposure</button>
+  <button class="nav" onclick="scrollToId('history-panel',this)"><span>◷</span>Historical data</button>
+  <button class="nav" onclick="scrollToId('alert-assistant',this)"><span>✧</span>Alert explanation</button>
+  <button class="nav" onclick="downloadReport()"><span>▤</span>Reports</button>
+  <div class="sidefoot"><b>Prototype data notice</b>Weather is requested from Open-Meteo. Flood-risk score and risk overlays are illustrative, not official warnings or validated ML predictions.</div>
+ </aside>
+ <main id="dashboard">
+  <div class="head"><div><div class="eyebrow">INDIA • FLOOD INTELLIGENCE</div><h1>National flood-risk overview</h1><div class="sub">Select any mapped state or choose a state from the list to inspect its weather and regional context.</div></div><div class="controls"><select class="select" id="stateSelect" onchange="selectState(this.value)"><option value="India">India · National view</option></select><button class="btn primary" onclick="refreshWeather()">↻ Refresh weather</button></div></div>
+  <div class="stats">
+   <div class="stat"><div class="stathead">Selected-area risk index <span class="ico">◈</span></div><div class="num" id="riskTop">—<small style="font-size:12px;color:#71869d"> /100</small></div><div class="hint"><span class="pill" id="riskPill">DEMO INDEX</span> not a probability</div></div>
+   <div class="stat"><div class="stathead">Forecast rainfall (next 24h) <span class="ico">☂</span></div><div class="num" id="rainTop">—<small style="font-size:12px;color:#71869d"> mm</small></div><div class="hint" id="rainHint">Waiting for forecast data</div></div>
+   <div class="stat"><div class="stathead">Current temperature <span class="ico">☼</span></div><div class="num" id="tempTop">—<small style="font-size:12px;color:#71869d"> °C</small></div><div class="hint" id="tempHint">Open-Meteo current weather</div></div>
+   <div class="stat"><div class="stathead">Data freshness <span class="ico">◷</span></div><div class="num" style="font-size:21px" id="freshTop">Checking</div><div class="hint" id="freshHint">Live API status</div></div>
+  </div>
+  <div class="grid">
+   <section class="panel" id="map-panel"><div class="paneltitle"><div><h2>Interactive India map</h2><p>Search a specific place or explore the live interactive map · zoom and pan</p></div><span class="pill" id="mapState">INDIA VIEW</span></div>
+    <div class="maptools" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px"><input id="mapPlaceSearch" class="select" style="flex:1;min-width:190px;padding:10px 12px" placeholder="Search exact place, district, village, landmark…" onkeydown="if(event.key==='Enter')searchMapPlace()"><button class="btn" onclick="searchMapPlace()">⌕ Search place</button><select class="select" id="mapStateSelect" onchange="selectState(this.value)" style="max-width:220px"><option value="India">India · All regions</option></select><button class="btn" onclick="fitIndia()">↗ India view</button></div><div class="maparea"><div id="map" role="application" aria-label="Interactive map of India"></div><div class="mapnote" id="mapNote">Real interactive map · search a district, village, town or landmark above.</div></div>
+    <div class="sub" style="margin-top:8px">Map tiles © OpenStreetMap contributors · satellite imagery © Esri. Map uses automatic street-map fallbacks; no location permission is required. Live data requires internet.</div>
+   </section>
+   <section class="panel" id="risk-panel"><div class="paneltitle"><div><h2>Region insights</h2><p id="regionSubtitle">India national view · demo context</p></div><span class="pill">EXPLAINABLE</span></div>
+    <div class="regioncard"><div class="regionbox"><label>Selected region</label><strong id="selectedName">India</strong><div class="riskline"><i id="riskFill" style="width:42%"></i></div><small id="riskDesc" class="sub">Illustrative composite index</small></div><div class="regionbox"><label>Weather forecast window</label><strong id="forecastTotal">— mm</strong><div class="sub" id="forecastMeta">Next 24 available hours</div></div></div>
+    <div class="regioncard" style="margin-top:10px"><div class="regionbox"><label>Forecast temperature range</label><strong id="tempRange">— / — °C</strong><div class="sub">Daily maximum / minimum · forecast</div></div><div class="regionbox"><label>Weather outlook</label><strong id="weatherOutlook" style="font-size:18px">Waiting for forecast</strong><div class="sub" id="weatherOutlookMeta">Based on weather-source code</div></div></div>
+    <div class="driver"><div class="driverhead"><b>Rainfall signal</b><span id="rainDriver">Waiting for data</span></div><div class="driverbar"><i id="rainDriverBar" style="width:12%"></i></div></div>
+    <div class="driver"><div class="driverhead"><b>Terrain / elevation</b><span id="terrainValue">Fetching elevation…</span></div><div class="driverbar"><i id="terrainBar" style="width:0%"></i></div></div>
+    <div class="driver"><div class="driverhead"><b>Land-cover / runoff context</b><span id="landcoverValue">Checking ESA WorldCover…</span></div><div class="driverbar"><i id="landcoverBar" style="width:0%"></i></div></div>
+    <div class="driver"><div class="driverhead"><b>Population / asset exposure</b><span id="exposureValue">Checking flood inventory…</span></div><div class="driverbar"><i id="exposureBar" style="width:0%"></i></div></div>
+    <div class="driver"><div class="driverhead"><b>Historical flood labels</b><span id="historyValue">Checking India flood inventory…</span></div><div class="driverbar"><i id="historyBar" style="width:0%"></i></div></div>
+    <div class="notice"><b>How to read this:</b> the index combines a fixed demonstration baseline with the selected area's forecast rainfall when available. It is not a trained ML model, calibrated probability, or evacuation trigger.</div>
+   </section>
+  </div>
+  <div class="grid">
+   <section class="panel" id="rain-panel"><div class="paneltitle"><div><h2>Rainfall forecast timeline</h2><p>Hourly forecast for the selected state's representative city/coordinate</p></div><div class="chartlegend"><span><i></i>Forecast precipitation</span></div></div><div class="bars" id="rainChart"><span class="sub">Fetching hourly forecast…</span></div><div class="sub" style="margin-top:9px" id="rainSource">Source: Open-Meteo forecast API. This is forecast data, not observed rainfall.</div></section>
+   <section class="panel" id="terrain-panel"><div class="paneltitle"><div><h2>Terrain & land-cover layers</h2><p>Turn on a layer to see data status</p></div></div><div class="layers">
+    <label class="layer"><input id="riskZonesToggle" type="checkbox" checked onchange="toggleRisk(this.checked)"> Illustrative risk zones</label>
+    <label class="layer"><input id="terrainToggle" type="checkbox" onchange="setMapLayer('terrain',this.checked)"> Topographic map</label>
+    <label class="layer"><input id="satelliteToggle" type="checkbox" checked onchange="setMapLayer('satellite',this.checked)"> Satellite imagery</label>
+    <label class="layer"><input id="worldcoverToggle" type="checkbox" checked onchange="setMapLayer('worldcover',this.checked)"> ESA land-cover classes</label>
+    <label class="layer"><input id="riversToggle" type="checkbox" checked onchange="setMapLayer('rivers',this.checked)"> Rivers & drainage</label>
+    <label class="layer"><input id="rainfallToggle" type="checkbox" checked onchange="setMapLayer('rainfall',this.checked)"> Rainfall forecast (point)</label>
+    <label class="layer"><input id="populationToggle" type="checkbox" onchange="setMapLayer('population',this.checked)"> Population exposure</label>
+   </div></section>
+  </div>
+  <div class="grid">
+   <section class="panel" id="exposure-panel"><div class="paneltitle"><div><h2>Exposure & preparedness</h2><p>Decision-support checklist — validate local details before action</p></div><span class="pill">ADVISORY</span></div>
+    <div class="alert"><div class="alertico">⌖</div><div><b>Inspect low-lying areas and drainage</b><small>Use verified elevation and river data to identify locations that may require monitoring.</small></div></div>
+    <div class="alert"><div class="alertico">☂</div><div><b>Monitor periods of heavy rainfall</b><small id="rainAdvice">Forecast-based advice will appear when the API responds.</small></div></div>
+    <div class="alert"><div class="alertico">↗</div><div><b>Review critical access routes</b><small>Validate road, bridge, hospital, shelter and school data with local authorities.</small></div></div>
+   </section>
+   <section class="panel" id="history-panel"><div class="paneltitle"><div><h2>Regional data status</h2><p>Evidence available for selected region</p></div></div><table class="table"><thead><tr><th>Dataset</th><th>Status / value</th><th>Type</th></tr></thead><tbody id="dataTable"><tr><td>Weather forecast</td><td>Loading</td><td><span class="tag">Forecast</span></td></tr><tr><td>Elevation</td><td id="reportElevation">Loading DEM value</td><td><span class="tag">Copernicus DEM via Open-Meteo</span></td></tr><tr><td>Land-cover classification</td><td>Checking ESA WorldCover</td><td><span class="tag">Land-cover layer</span></td></tr><tr><td>Historical flood labels</td><td>Querying India Flood Inventory</td><td><span class="tag">Historical dataset</span></td></tr></tbody></table><div class="notice">Historical event playback and district-level observed flood labels will require a sourced historical dataset. No flood events are fabricated here.</div></section>
+  </div>
+  <section class="panel"><div class="paneltitle"><div><h2>Quick tools</h2><p>Prototype workflows</p></div></div><div class="quick">
+   <button onclick="document.getElementById('map-panel').scrollIntoView({behavior:'smooth'})"><span>⌖</span><b>Explore map</b><small>Click states and inspect regional context →</small></button>
+   <button onclick="compareRegions()"><span>⇄</span><b>Compare regions</b><small>Compare available forecast values →</small></button>
+   <button onclick="scenario()"><span>⚙</span><b>What-if rainfall</b><small>Explore a clearly labeled simulated scenario →</small></button>
+   <button onclick="downloadReport()"><span>▤</span><b>Download report</b><small>Save current region summary as a text report →</small></button>
+  </div></section>
+  <section class="panel assistant-wrap" id="alert-assistant">
+   <div class="paneltitle"><div class="assistant-head"><div class="assistant-icon">✧</div><div><h2>FloodGuard AI Assistant</h2><p>Ask questions about floods, rainfall, river overflow, preparedness, maps and the selected area.</p></div></div><span class="pill" id="assistantMode">EVIDENCE-BASED</span></div>
+   <div class="assistant-answer" id="assistantAnswer" aria-live="polite">Hi! Ask me anything about floods. I can explain flood causes, rainfall signals, river flooding, preparedness, map layers and available data for your selected location.</div>
+   <div class="assistant-actions"><button onclick="assistantQuickAsk('Why might flooding happen here?')">Why flooding?</button><button onclick="assistantQuickAsk('How should I prepare for a flood?')">Preparedness</button><button onclick="assistantQuickAsk('Explain rainfall and river flood signals')">Understand signals</button><button onclick="assistantQuickAsk('What do the map layers mean?')">Map layers</button></div>
+   <form class="assistant-ask" onsubmit="event.preventDefault();askFloodAssistant()"><input id="assistantQuestion" placeholder="Ask any flood-related question…" maxlength="1200"><button class="btn primary" type="submit">Ask assistant</button></form>
+   <div class="assistant-foot">Flood information assistant for a hackathon prototype. Responses use available dashboard data and general safety guidance; they are not official warnings. Follow IMD and local disaster-management instructions.</div>
+  </section>
+  <div class="foot">FloodGuard AI is a hackathon prototype, not an official warning system. Forecasts are not observations. The colored state overlays and risk index are illustrative and must not be used for evacuation decisions. Follow official IMD and local disaster-management advisories. Weather API and map boundary loading require internet access.</div>
+ 
+</main>
+</div>
+<button class="flood-alert-fab" id="floodAlertFab" onclick="openFloodAlertCenter()" aria-label="Open FloodGuard AI flood alerts"><span class="alert-bell">🚨</span><span class="alert-copy">FLOOD ALERTS<small>OPEN ALERT CENTER ↗</small></span></button>
+<div id="toast" class="toast hidden"></div>
+<script>
+const regions={
+"India":{lat:22.5,lon:79.0,zoom:4,base:42,city:"India representative point"},
+"Andhra Pradesh":{lat:16.5062,lon:80.6480,zoom:6,base:48,city:"Vijayawada"},
+"Arunachal Pradesh":{lat:27.0844,lon:93.6053,zoom:7,base:50,city:"Itanagar"},
+"Assam":{lat:26.1445,lon:91.7362,zoom:7,base:67,city:"Guwahati"},
+"Bihar":{lat:25.5941,lon:85.1376,zoom:7,base:64,city:"Patna"},
+"Chhattisgarh":{lat:21.2514,lon:81.6296,zoom:7,base:45,city:"Raipur"},
+"Goa":{lat:15.4909,lon:73.8278,zoom:9,base:48,city:"Panaji"},
+"Gujarat":{lat:22.2587,lon:71.1924,zoom:6,base:40,city:"Rajkot"},
+"Haryana":{lat:29.0588,lon:76.0856,zoom:7,base:38,city:"Hisar"},
+"Himachal Pradesh":{lat:31.1048,lon:77.1734,zoom:7,base:52,city:"Shimla"},
+"Jharkhand":{lat:23.6102,lon:85.2799,zoom:7,base:48,city:"Ranchi"},
+"Karnataka":{lat:15.3173,lon:75.7139,zoom:6,base:42,city:"Hubballi"},
+"Kerala":{lat:10.8505,lon:76.2711,zoom:7,base:58,city:"Kochi"},
+"Madhya Pradesh":{lat:22.9734,lon:78.6569,zoom:6,base:42,city:"Bhopal"},
+"Maharashtra":{lat:19.7515,lon:75.7139,zoom:6,base:45,city:"Pune"},
+"Manipur":{lat:24.8170,lon:93.9368,zoom:8,base:47,city:"Imphal"},
+"Meghalaya":{lat:25.4670,lon:91.3662,zoom:8,base:58,city:"Shillong"},
+"Mizoram":{lat:23.1645,lon:92.9376,zoom:8,base:48,city:"Aizawl"},
+"Nagaland":{lat:26.1584,lon:94.5624,zoom:8,base:46,city:"Kohima"},
+"Odisha":{lat:20.9517,lon:85.0985,zoom:7,base:58,city:"Bhubaneswar"},
+"Punjab":{lat:31.1471,lon:75.3412,zoom:7,base:42,city:"Ludhiana"},
+"Rajasthan":{lat:27.0238,lon:74.2179,zoom:6,base:30,city:"Jaipur"},
+"Sikkim":{lat:27.5330,lon:88.5122,zoom:9,base:52,city:"Gangtok"},
+"Tamil Nadu":{lat:11.1271,lon:78.6569,zoom:6,base:48,city:"Coimbatore"},
+"Telangana":{lat:18.1124,lon:79.0193,zoom:7,base:43,city:"Hyderabad"},
+"Tripura":{lat:23.9408,lon:91.9882,zoom:8,base:50,city:"Agartala"},
+"Uttar Pradesh":{lat:26.8467,lon:80.9462,zoom:6,base:56,city:"Lucknow"},
+"Uttarakhand":{lat:30.0668,lon:79.0193,zoom:7,base:57,city:"Dehradun"},
+"West Bengal":{lat:22.9868,lon:87.8550,zoom:7,base:62,city:"Kolkata"},
+"Andaman and Nicobar Islands":{lat:11.7401,lon:92.6586,zoom:7,base:48,city:"Port Blair"},
+"Chandigarh":{lat:30.7333,lon:76.7794,zoom:11,base:38,city:"Chandigarh"},
+"Dadra and Nagar Haveli and Daman and Diu":{lat:20.1809,lon:73.0169,zoom:8,base:44,city:"Daman"},
+"Delhi":{lat:28.6139,lon:77.2090,zoom:10,base:44,city:"New Delhi"},
+"Jammu and Kashmir":{lat:33.7782,lon:76.5762,zoom:7,base:49,city:"Srinagar"},
+"Ladakh":{lat:34.1526,lon:77.5771,zoom:7,base:24,city:"Leh"},
+"Lakshadweep":{lat:10.5667,lon:72.6417,zoom:8,base:42,city:"Kavaratti"},
+"Puducherry":{lat:11.9416,lon:79.8083,zoom:10,base:47,city:"Puducherry"}
+};
+const aliases={"Orissa":"Odisha","Uttaranchal":"Uttarakhand","NCT of Delhi":"Delhi","Jammu & Kashmir":"Jammu and Kashmir","Andaman & Nicobar Island":"Andaman and Nicobar Islands","Pondicherry":"Puducherry","Dadra and Nagar Haveli":"Dadra and Nagar Haveli and Daman and Diu"};
+let map,geoLayer,highlightLayer,riskMarkers=[],riskOn=true,weather=null,selected="India",geoReady=false,selectedPoint=null,searchMarker=null;
+let osmLayer,terrainLayer,satelliteLayer,labelsLayer,worldCoverLayer,riverLayer;
+let satelliteErrors=0,satelliteLoaded=0,satelliteFailed=false;
+const colors=["#41b98b","#e8c94e","#f49b38","#ed5361"];
+function populateSelects(){const opts=Object.keys(regions).map(n=>`<option value="${n}">${n==="India"?"🇮🇳 ":""}${n}</option>`).join("");document.getElementById("stateSelect").innerHTML=opts;document.getElementById("mapStateSelect").innerHTML=opts;document.getElementById("locationOptions").innerHTML=Object.keys(regions).filter(n=>n!=="India").map(n=>`<option value="${n}"></option>`).join("")}
+function renderRegionFallback(message){const note=document.getElementById("mapNote");if(note)note.textContent=message||"Use the place search and interactive map controls."}
+function initMap(){
+ if(!window.L){renderRegionFallback("Map library could not load. Open this file in Chrome or Edge with internet access. No location permission is needed.");return}
+ map=L.map("map",{preferCanvas:true,scrollWheelZoom:true}).setView([22.8,79.0],5);
+ // Basemaps do not require device-location or satellite permissions. Start with a normal street map.
+ const baseProviders=[
+  {name:"OpenStreetMap",url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",attr:'© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',maxZoom:19},
+  {name:"CARTO",url:"https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",attr:'© OpenStreetMap contributors · © CARTO',maxZoom:20},
+  {name:"Esri Topographic",url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",attr:'Tiles © Esri · Topographic',maxZoom:19}
+ ];
+ let providerIndex=0, fallbackBusy=false;
+ function makeBase(provider){return L.tileLayer(provider.url,{maxZoom:provider.maxZoom,attribution:provider.attr, crossOrigin:true, keepBuffer:2})}
+ function installBase(index,reason){
+  if(!map||index>=baseProviders.length){const n=document.getElementById("mapNote");if(n)n.textContent="Map tiles are blocked by this network. The search and dashboard may still work; try another network/hotspot. No permission needs to be granted.";return}
+  providerIndex=index;const provider=baseProviders[index],layer=makeBase(provider);osmLayer=layer;fallbackBusy=false;
+  let errors=0,loaded=0,switched=false;
+  layer.on("tileload",()=>{loaded++;if(loaded>=2){const n=document.getElementById("mapNote");if(n)n.textContent=`Map source: ${provider.name}. Search a district, village or town.`}});
+  layer.on("tileerror",()=>{errors++;if(!switched&&loaded===0&&errors>=4){switched=true;if(map.hasLayer(layer))map.removeLayer(layer);const n=document.getElementById("mapNote");if(n)n.textContent=`${provider.name} tiles unavailable; trying ${baseProviders[index+1]?.name||"another map source"} automatically…`;installBase(index+1,"tile errors")}});
+  layer.addTo(map);
+  if(reason){const n=document.getElementById("mapNote");if(n)n.textContent=`Using ${provider.name} map tiles automatically. No location permission is required.`}
+ }
+ installBase(0);
+ terrainLayer=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:'Tiles © <a href="https://www.esri.com/" target="_blank">Esri</a> · Topographic'});
+ satelliteLayer=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:'Imagery © <a href="https://www.esri.com/" target="_blank">Esri</a>'});
+ labelsLayer=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,opacity:.9,attribution:'Labels © Esri'});
+ // If optional satellite imagery is blocked, automatically return to the working street map.
+ satelliteErrors=0;satelliteLoaded=0;satelliteFailed=false;
+ satelliteLayer.on("tileload",()=>{satelliteLoaded++});
+ satelliteLayer.on("tileerror",()=>{satelliteErrors++;if(!satelliteFailed&&satelliteLoaded===0&&satelliteErrors>=4){satelliteFailed=true;if(map.hasLayer(satelliteLayer))map.removeLayer(satelliteLayer);if(map.hasLayer(labelsLayer))map.removeLayer(labelsLayer);if(osmLayer&&!map.hasLayer(osmLayer))osmLayer.addTo(map);const cb=document.querySelector('input[onchange*="satellite"]');if(cb)cb.checked=false;const n=document.getElementById("mapNote");if(n)n.textContent="Satellite tiles are blocked, so FloodGuard AI switched back to the normal map automatically. No permission is required.";}});
+ worldCoverLayer=L.tileLayer.wms("https://services.terrascope.be/wms/v2",{layers:"WORLDCOVER_2021_MAP",format:"image/png",transparent:true,version:"1.3.0",attribution:'ESA WorldCover 2021 · Copernicus Sentinel data',opacity:.7});
+ riverLayer=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Hydro_Reference/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,opacity:.9,attribution:'Hydrography reference © Esri'});
+ map.on("click",e=>{setSelectedPoint(e.latlng.lat,e.latlng.lng,"Map point");queryWorldCover(e.latlng)});
+ setTimeout(()=>map.invalidateSize(),250);window.addEventListener("resize",()=>setTimeout(()=>map.invalidateSize(),120));
+}
+function fitIndia(){selectedPoint=null;selected="India";if(map)map.setView([22.8,79.0],5);if(searchMarker){map.removeLayer(searchMarker);searchMarker=null}document.getElementById("mapNote").textContent="Showing India overview. Click any point or search a state, district, village or landmark.";refreshWeather()}
+async function searchMapPlace(){
+ const input=document.getElementById("mapPlaceSearch"),q=(input?.value||"").trim();
+ if(!q){toast("Enter a district, village, town or landmark.");return}
+ const note=document.getElementById("mapNote");note.textContent="Searching for the exact place…";
+ const stateName=(document.getElementById("mapStateSelect")?.value||selected||"India");
+ // Avoid turning a place search into a state-only search. Add the selected state only when needed.
+ const queries=[];
+ if(/\bindia\b/i.test(q))queries.push(q);
+ else if(stateName!=="India"&&!new RegExp(stateName.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(q))queries.push(`${q}, ${stateName}, India`);
+ queries.push(`${q}, India`); if(stateName!=="India")queries.push(`${q}, ${stateName}`); queries.push(q);
+ const isIndiaResult=x=>{const a=x.address||{};const country=String(a.country_code||a.country||"").toLowerCase();return country==="in"||String(a.country||"").toLowerCase()==="india"||String(x.display_name||"").toLowerCase().includes("india")};
+ const score=x=>{const a=x.address||{},typ=String(x.type||"").toLowerCase(),cls=String(x.class||"").toLowerCase(),name=String(x.name||x.display_name||"").split(",")[0].toLowerCase(),q0=q.split(",")[0].trim().toLowerCase();let n=0;if(name===q0)n+=100;if(name.includes(q0)||q0.includes(name))n+=35;if(a.state&&stateName!=="India"&&String(a.state).toLowerCase()===stateName.toLowerCase())n+=55;if(typ.includes("village")||typ.includes("town")||typ.includes("city")||typ.includes("suburb"))n+=30;if(typ.includes("district")||String(a.county||"").toLowerCase().includes(q0))n+=25;if(typ==="state"||cls==="boundary"&&typ==="administrative")n-=35;if(!isIndiaResult(x))n-=200;return n};
+ let candidates=[];let lastError=null;
+ // Try multiple queries, then use a second geocoder if Nominatim is blocked or returns no India result.
+ for(const query of [...new Set(queries)]){try{const u="https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=in&addressdetails=1&namedetails=1&limit=10&q="+encodeURIComponent(query);const r=await fetch(u,{headers:{Accept:"application/json"},cache:"no-store"});if(!r.ok)throw Error("OpenStreetMap search returned HTTP "+r.status);const a=await r.json();candidates.push(...a);if(a.length&&candidates.some(x=>score(x)>50))break}catch(e){lastError=e}}
+ if(!candidates.some(isIndiaResult)){try{const u="https://photon.komoot.io/api/?limit=10&lang=en&q="+encodeURIComponent(queries[0]);const r=await fetch(u,{headers:{Accept:"application/json"},cache:"no-store"});if(!r.ok)throw Error("Alternative search unavailable");const d=await r.json();candidates=(d.features||[]).map(f=>({lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0],display_name:[f.properties.name,f.properties.district,f.properties.state,f.properties.country].filter(Boolean).join(", "),name:f.properties.name,type:f.properties.type,class:f.properties.osm_key,address:{state:f.properties.state,country:f.properties.country,country_code:String(f.properties.countrycode||"").toLowerCase(),county:f.properties.district}}))}catch(e){lastError=e}}
+ const unique=[];const seen=new Set();for(const x of candidates){const key=String(x.lat)+","+String(x.lon);if(!seen.has(key)&&isIndiaResult(x)){seen.add(key);unique.push(x)}}
+ if(!unique.length){note.textContent=(lastError?"Search service could not be reached. ":"No exact place found. ")+"Try a fuller name, e.g. 'Satara, Maharashtra' or 'Wai, Satara, Maharashtra'.";toast("District/village search failed. Check internet and try the full place name.");return}
+ unique.sort((a,b)=>score(b)-score(a));const hit=unique[0],lat=Number(hit.lat),lon=Number(hit.lon);if(!Number.isFinite(lat)||!Number.isFinite(lon))throw Error("The place result had invalid coordinates");
+ const label=hit.display_name||hit.name||q;selectedPoint={lat,lon,label};setSelectedPoint(lat,lon,label);
+ const typ=String(hit.type||"").toLowerCase(),cls=String(hit.class||"").toLowerCase();let zoom=14;if(typ==="state")zoom=7;else if(typ.includes("district")||typ==="administrative"||cls==="boundary")zoom=11;else if(typ.includes("village")||typ.includes("town")||typ.includes("city")||typ.includes("suburb"))zoom=14;else zoom=15;
+ if(map){map.setView([lat,lon],zoom,{animate:true});setTimeout(()=>map.invalidateSize(),200)}queryWorldCover({lat,lng:lon});note.textContent="Found: "+label+" · zoomed to the selected place.";document.getElementById("map-panel")?.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function setSelectedPoint(lat,lon,label){selectedPoint={lat,lon,label};const short=label.split(",")[0];document.getElementById("selectedName").textContent=short;document.getElementById("regionSubtitle").textContent=`${label} · ${lat.toFixed(4)}, ${lon.toFixed(4)}`;document.getElementById("mapState").textContent="LOCATION SELECTED";if(searchMarker)map.removeLayer(searchMarker);searchMarker=L.marker([lat,lon]).addTo(map).bindPopup("<b>Selected location</b><br>"+String(label).replaceAll("&","&amp;").replaceAll("<","&lt;")+`<br><small>${lat.toFixed(5)}, ${lon.toFixed(5)}</small>`).openPopup();document.getElementById("mapNote").textContent="Selected: "+label;refreshWeather();loadTerrain(lat,lon);loadFloodInventory(lat,lon)}
+function useMapPoint(lat,lon){if(map)map.setView([lat,lon],13);setSelectedPoint(lat,lon,`${lat.toFixed(5)}, ${lon.toFixed(5)}`)}
+function setMapLayer(kind,on){
+ if(!map)return;
+ if(kind==="terrain"){
+  if(on)terrainLayer.addTo(map);else map.removeLayer(terrainLayer);
+ }else if(kind==="satellite"){
+  if(on){if(osmLayer&&map.hasLayer(osmLayer))map.removeLayer(osmLayer);if(terrainLayer&&map.hasLayer(terrainLayer))map.removeLayer(terrainLayer);satelliteFailed=false;satelliteErrors=0;satelliteLoaded=0;satelliteLayer.addTo(map);labelsLayer.addTo(map);document.getElementById("mapNote").textContent="Trying satellite imagery. If the provider blocks it, the map will switch back automatically."}
+  else{map.removeLayer(satelliteLayer);map.removeLayer(labelsLayer);if(osmLayer&&!map.hasLayer(osmLayer))osmLayer.addTo(map)}
+ }else if(kind==="worldcover"){
+  if(on){worldCoverLayer.addTo(map);document.getElementById("landcoverValue").textContent="ESA WorldCover 2021 layer enabled; querying class…";if(selectedPoint)queryWorldCover({lat:selectedPoint.lat,lng:selectedPoint.lon})}
+  else{map.removeLayer(worldCoverLayer);document.getElementById("landcoverValue").textContent="ESA WorldCover layer off"}
+ }else if(kind==="rivers"){
+  if(on)riverLayer.addTo(map);else map.removeLayer(riverLayer);
+ }else if(kind==="rainfall"){
+  // Rainfall is a point forecast, not a map raster. The selected point's forecast is fetched automatically.
+  if(on)refreshWeather();
+ }else if(kind==="population"){
+  // No validated village-scale population raster is configured; do not paint invented exposure values.
+  if(on)toast("Population exposure data is not configured for this location.");
+ }
+}
+async function queryWorldCover(point){
+ const el=document.getElementById("landcoverValue"),bar=document.getElementById("landcoverBar");
+ if(!el||!map||!worldCoverLayer)return;
+ el.textContent="Checking ESA WorldCover class…";bar.style.width="8%";
+ const codes={10:"Tree cover",20:"Shrubland",30:"Grassland",40:"Cropland",50:"Built-up",60:"Bare / sparse vegetation",70:"Snow and ice",80:"Permanent water bodies",90:"Herbaceous wetland",95:"Mangroves",100:"Moss and lichen"};
+ const identify=async(version,infoFormat)=>{
+  const size=map.getSize(),bounds=map.getBounds(),sw=bounds.getSouthWest(),ne=bounds.getNorthEast();
+  const url=new URL("https://services.terrascope.be/wms/v2");
+  url.searchParams.set("service","WMS");url.searchParams.set("request","GetFeatureInfo");url.searchParams.set("version",version);
+  url.searchParams.set("layers","WORLDCOVER_2021_MAP");url.searchParams.set("query_layers","WORLDCOVER_2021_MAP");
+  url.searchParams.set("styles","");url.searchParams.set("format","image/png");url.searchParams.set("transparent","true");
+  url.searchParams.set("width",String(Math.max(1,size.x)));url.searchParams.set("height",String(Math.max(1,size.y)));
+  const p=map.latLngToContainerPoint([point.lat,point.lng]);
+  if(version==="1.3.0"){
+   url.searchParams.set("crs","EPSG:3857");
+   const project=(lat,lon)=>{const x=lon*20037508.34/180;let y=Math.log(Math.tan((90+Math.max(-85.0511,Math.min(85.0511,lat)))*Math.PI/360))/(Math.PI/180);y=y*20037508.34/180;return [x,y]};
+   const a=project(sw.lat,sw.lng),b=project(ne.lat,ne.lng);url.searchParams.set("bbox",`${a[0]},${a[1]},${b[0]},${b[1]}`);url.searchParams.set("i",String(Math.max(0,Math.min(size.x-1,Math.round(p.x)))));url.searchParams.set("j",String(Math.max(0,Math.min(size.y-1,Math.round(p.y)))));
+  }else{
+   url.searchParams.set("srs","EPSG:4326");url.searchParams.set("bbox",`${sw.lng},${sw.lat},${ne.lng},${ne.lat}`);url.searchParams.set("x",String(Math.max(0,Math.min(size.x-1,Math.round(p.x)))));url.searchParams.set("y",String(Math.max(0,Math.min(size.y-1,Math.round(p.y)))));
+  }
+  url.searchParams.set("info_format",infoFormat);url.searchParams.set("feature_count","3");
+  const r=await fetch(url,{mode:"cors",cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
+  const txt=await r.text();if(!txt.trim())throw Error("Empty response");return txt;
+ };
+ try{
+  let body="",lastErr=null;
+  for(const [v,f] of [["1.3.0","application/json"],["1.1.1","application/json"],["1.1.1","text/plain"],["1.1.1","text/html"]]){try{body=await identify(v,f);if(body&&!/exceptionreport|serviceexception|error/i.test(body.slice(0,500)))break;throw Error("WMS service exception")}catch(e){lastErr=e;body=""}}
+  if(!body)throw lastErr||Error("No identify response");
+  let parsed=null;try{parsed=JSON.parse(body)}catch{}
+  const raw=parsed?JSON.stringify(parsed):body;
+  let code=null;
+  // WorldCover class codes are discrete values. Match an explicit value field or a standalone class code.
+  const m=raw.match(/(?:"(?:value|GRAY_INDEX|class|DN)"\s*:\s*"?)(10|20|30|40|50|60|70|80|90|95|100)(?:"?)(?=\s*[,}\s])/i)||raw.match(/\b(10|20|30|40|50|60|70|80|90|95|100)\b/);
+  if(m)code=Number(m[1]);
+  if(code&&codes[code]){el.textContent=`${codes[code]} · ESA WorldCover 2021`;bar.style.width=(code===50?85:code===80||code===90?75:code===40?65:45)+"%";window.floodguardLandCover=codes[code]}
+  else{el.textContent="ESA layer enabled · point class not returned by service";bar.style.width="15%";window.floodguardLandCover=null}
+ }catch(e){el.textContent="ESA WorldCover layer enabled · class lookup temporarily unavailable";bar.style.width="15%";window.floodguardLandCover=null}
+}
+async function loadFloodInventory(lat,lon){const ev=document.getElementById("exposureValue"),hv=document.getElementById("historyValue"),eb=document.getElementById("exposureBar"),hb=document.getElementById("historyBar");ev.textContent="Querying district flood inventory…";hv.textContent="Querying historical flood labels…";try{const u=new URL("https://livingatlas.esri.in/server1/rest/services/Water/IFI/MapServer/0/query");u.searchParams.set("f","json");u.searchParams.set("where","1=1");u.searchParams.set("geometry",`${lon},${lat}`);u.searchParams.set("geometryType","esriGeometryPoint");u.searchParams.set("inSR","4326");u.searchParams.set("spatialRel","esriSpatialRelIntersects");u.searchParams.set("outFields","*");u.searchParams.set("returnGeometry","false");const r=await fetch(u);if(!r.ok)throw Error("Flood inventory request failed");const d=await r.json();const a=d.features?.[0]?.attributes;if(!a)throw Error("No district flood record at this point");const find=(keys)=>{const k=Object.keys(a).find(x=>keys.some(q=>x.toLowerCase()===q.toLowerCase()||x.toLowerCase().includes(q.toLowerCase())));return k?a[k]:null};const floods=find(["total_floods"]),dfsi=find(["dfsi"]),area=find(["corrected_percent_flooded_area","percent_flooded_area"]),pop=find(["population_"]);ev.textContent=pop!=null&&String(pop).trim()!==""?`Inventory population field: ${pop}`:"No population value in matched record";eb.style.width=pop!=null?"45%":"0%";hv.textContent=`${floods??"—"} recorded flood events${dfsi!=null?` · DFSI ${Number(dfsi).toFixed(1)}`:""}${area!=null?` · flooded area ${Number(area).toFixed(1)}%`:""}`;hb.style.width=floods!=null?Math.max(5,Math.min(100,Number(floods)*5))+"%":"0%";const tbl=document.getElementById("dataTable");if(tbl){const rows=tbl.querySelectorAll("tr");for(const row of rows){if(row.textContent.includes("Land-cover classification"))row.cells[1].textContent=document.getElementById("landcoverValue").textContent;if(row.textContent.includes("Historical flood labels"))row.cells[1].textContent=hv.textContent}const tr=document.createElement("tr");tr.innerHTML=`<td>India Flood Inventory (IFI)</td><td>${hv.textContent}</td><td><span class="tag">Historical dataset</span></td>`;tbl.appendChild(tr)}}catch(e){ev.textContent="Population exposure unavailable for this point";hv.textContent="No matching district record / service unavailable";eb.style.width="0%";hb.style.width="0%"}}
+async function loadTerrain(lat,lon){
+ const v=document.getElementById("terrainValue"),bar=document.getElementById("terrainBar");if(!v||!bar)return;
+ v.textContent="Fetching elevation…";bar.style.width="8%";
+ const attempts=[
+  async()=>{const d=await fetchJsonWithFallback(`https://api.opentopodata.org/v1/aster30m?locations=${lat},${lon}`);const e=Number(d.results?.[0]?.elevation);if(!Number.isFinite(e))throw Error("No ASTER elevation returned");return e},
+  async()=>{const d=await fetchJsonWithFallback(`https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lon}`);const e=Number(d.results?.[0]?.elevation);if(!Number.isFinite(e))throw Error("No SRTM elevation returned");return e},
+  async()=>{const d=await fetchJsonWithFallback(`https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`);const e=Number(d.elevation?.[0]);if(!Number.isFinite(e))throw Error("No elevation returned");return e},
+  async()=>{const d=await fetchJsonWithFallback(`https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`);const e=Number(d.results?.[0]?.elevation);if(!Number.isFinite(e))throw Error("No elevation returned");return e}
+ ];let lastErr=null;
+ for(const getElevation of attempts){try{const e=await getElevation();v.textContent=`${Math.round(e)} m above sea level`;window.floodguardElevation=e;requestMLPrediction();const reportElevation=document.getElementById("reportElevation");if(reportElevation)reportElevation.textContent=`${Math.round(e)} m above sea level`;bar.style.width=Math.max(4,Math.min(100,e/3000*100))+"%";const notice=document.getElementById("terrain-panel")?.querySelector(".notice");if(notice)notice.textContent="Elevation retrieved from a public elevation service. Elevation alone does not determine flood risk; slope and flow accumulation are not calculated here.";return}catch(e){lastErr=e}}
+ v.textContent="Elevation source unavailable · retry or check network";bar.style.width="0%";window.floodguardElevation=null;const reportElevation=document.getElementById("reportElevation");if(reportElevation)reportElevation.textContent="Unavailable — elevation services did not respond";
+}
+async function loadIndiaBoundaries(){
+ if(typeof L==="undefined"||!map)return;
+ const urls=[
+  "https://mapservice.gov.in/gismapservice/rest/services/BharatMapService/Admin_Boundary_District/MapServer/0/query?where=1%3D1&outFields=STNAME,STCODE11,State_LGD&returnGeometry=true&outSR=4326&f=geojson",
+  "https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson",
+  "https://raw.githubusercontent.com/datameet/maps/master/States/india_states.geojson"
+ ];let gj=null;
+ for(const url of urls){try{const res=await fetch(url,{mode:'cors'});if(res.ok){const x=await res.json();if(x.features&&x.features.length){gj=x;break}}}catch(e){}}
+ if(!gj){document.getElementById("mapNote").textContent="State outlines could not load. Basemap click selection and place search still work.";return}
+ try{document.getElementById("mapFallback")?.classList.remove("active");geoLayer=L.geoJSON(gj,{style:f=>stateStyle(f),onEachFeature:(f,l)=>{const n=getStateName(f);l.bindTooltip(n,{sticky:true});l.on("click",()=>{const n2=getStateName(f);if(regions[n2])selectState(n2);else toast("State boundary selected: "+n2+". Choose the matching name from the selector if needed.")})}}).addTo(map);geoReady=true;document.getElementById("mapNote").textContent="State boundaries loaded with neutral outlines · click a state or any point to select a location.";fitIndia()}catch(e){document.getElementById("mapNote").textContent="Map basemap loaded; state overlay unavailable."}
+}
+function getStateName(f){const p=f.properties||{};let raw=p.NAME_1||p.name||p.NAME||p.st_nm||p.ST_NM||p.state||p.State||p.state_name||Object.values(p).find(v=>typeof v==="string"&&regions[aliases[v]||v])||"Unknown region";return aliases[raw]||raw}
+function riskFor(name){let base=regions[name]?.base??42;if(weather&&name===selected)base=Math.min(95,Math.round(base+Math.min(32,(weather.total||0)*1.8)+Math.max(0,(weather.maxProb||0)-40)*.18));return base}
+function stateStyle(f){return {color:"#aab8c7",weight:0.8,fillColor:"#ffffff",fillOpacity:0.02}}
+function selectState(name){if(!regions[name]){toast("This region isn't in the selector yet: "+name);return}selected=name;document.getElementById("stateSelect").value=name;document.getElementById("mapStateSelect").value=name;document.getElementById("selectedName").textContent=name;document.getElementById("mapState").textContent=name==="India"?"INDIA VIEW":name.toUpperCase();document.getElementById("regionSubtitle").textContent=name==="India"?"National representative point · demo context":`${regions[name].city} representative coordinate · ${name}`;const r=regions[name];selectedPoint=null;if(name==="India"){if(map)map.setView([22.8,79.0],5)}else if(map){map.setView([r.lat,r.lon],r.zoom||8);if(searchMarker){map.removeLayer(searchMarker);searchMarker=null}loadTerrain(r.lat,r.lon);loadFloodInventory(r.lat,r.lon);queryWorldCover({lat:r.lat,lng:r.lon})}refreshWeather();document.getElementById("riskDesc").textContent=name==="India"?"National demo index":`${name} demonstration baseline`;document.getElementById("riskTop").innerHTML=`${riskFor(name)}<small style="font-size:12px;color:#71869d"> /100</small>`;document.getElementById("riskFill").style.width=riskFor(name)+"%";document.getElementById("riskPill").textContent=riskFor(name)>=65?"HIGH DEMO INDEX":riskFor(name)>=45?"MODERATE DEMO INDEX":"LOW DEMO INDEX"}
+function selectStateFromMap(name){const n=aliases[name]||name;if(regions[n])selectState(n);else toast("Please select the closest matching region from the dropdown: "+name)}
+async function searchLocation(){const q=document.getElementById("globalSearch").value.trim();if(!q)return;const exact=Object.keys(regions).find(n=>n.toLowerCase()===q.toLowerCase())||aliases[q];if(exact&&regions[exact]){selectState(exact);document.getElementById("map-panel").scrollIntoView({behavior:"smooth"});return}document.getElementById("mapPlaceSearch").value=q;await searchMapPlace()}
+
+function toggleRisk(on){riskOn=on;toast(on?"Illustrative risk colors shown.":"Use map for boundaries; risk colors are illustrative.")}
+function layerMsg(s){toast(s)}
+function showProfile(){toast("FloodGuard AI · Demo operator profile · India-wide prototype")}
+function scrollToId(id,btn){document.getElementById(id)?.scrollIntoView({behavior:"smooth",block:"start"});document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));btn.classList.add("active")}
+function toast(s){const t=document.getElementById("toast");t.textContent=s;t.classList.remove("hidden");clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.add("hidden"),4000)}
+async function fetchJsonWithFallback(url,timeoutMs=12000){
+ const attempts=[
+  async()=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),timeoutMs);try{const r=await fetch(url,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("HTTP "+r.status);return await r.json()}finally{clearTimeout(t)}},
+  async()=>{const proxy="https://api.allorigins.win/raw?url="+encodeURIComponent(url);const c=new AbortController(),t=setTimeout(()=>c.abort(),timeoutMs);try{const r=await fetch(proxy,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("Fallback proxy HTTP "+r.status);return await r.json()}finally{clearTimeout(t)}},
+  async()=>{const proxy="https://corsproxy.io/?url="+encodeURIComponent(url);const c=new AbortController(),t=setTimeout(()=>c.abort(),timeoutMs);try{const r=await fetch(proxy,{cache:"no-store",signal:c.signal});if(!r.ok)throw Error("Alternate proxy HTTP "+r.status);return await r.json()}finally{clearTimeout(t)}}
+ ];let last;for(const attempt of attempts){try{return await attempt()}catch(e){last=e}}throw last||Error("All data sources failed");
+}
+async function refreshWeather(){
+ const base=regions[selected]||regions.India;
+ const r=selectedPoint?{...base,lat:selectedPoint.lat,lon:selectedPoint.lon,city:selectedPoint.label.split(",")[0]}:base;
+ const status=document.getElementById("apiStatus"),chart=document.getElementById("rainChart");
+ status.textContent="Connecting to weather sources…";chart.innerHTML='<span class="sub">Loading hourly rainfall forecast…</span>';
+ const params=new URLSearchParams({latitude:r.lat,longitude:r.lon,current:"temperature_2m,precipitation,weather_code",hourly:"precipitation,precipitation_probability",daily:"temperature_2m_max,temperature_2m_min,weather_code",past_days:"14",forecast_days:"2",timezone:"Asia/Kolkata"});
+ const url="https://api.open-meteo.com/v1/forecast?"+params.toString();
+ try{
+  const d=await fetchJsonWithFallback(url),c=d.current||{},daily=d.daily||{},times=d.hourly?.time||[],vals=d.hourly?.precipitation||[],probs=d.hourly?.precipitation_probability||[];
+  if(!times.length||!vals.length||!Number.isFinite(Number(c.temperature_2m)))throw Error("Forecast response did not contain the required hourly/current fields");
+  const now=Date.parse(c.time||new Date().toISOString());let arr=[];
+  for(let i=0;i<times.length;i++){if(Date.parse(times[i])>=now&&arr.length<24)arr.push({time:times[i],rain:Number(vals[i]??0),prob:Number(probs[i]??0)})}
+  if(!arr.length)throw Error("No upcoming hourly forecast values were returned");
+  const total=arr.reduce((a,x)=>a+x.rain,0),maxProb=Math.max(0,...arr.map(x=>x.prob));
+  const sumPast=(hours)=>{const cutoff=now-hours*3600000;let sum=0,found=false;for(let j=0;j<times.length;j++){const ts=Date.parse(times[j]);if(ts<now&&ts>=cutoff&&Number.isFinite(Number(vals[j]))){sum+=Number(vals[j]);found=true}}return found?Number(sum.toFixed(2)):null};
+  weather={total,maxProb,current:c,arr,rain1d:sumPast(24),rain3d:sumPast(72),rain7d:sumPast(168),rain14d:sumPast(336)};
+  const score=riskFor(selected);
+  document.getElementById("rainTop").innerHTML=`${total.toFixed(1)}<small style="font-size:12px;color:#71869d"> mm</small>`;
+  document.getElementById("tempTop").innerHTML=`${Number(c.temperature_2m).toFixed(1)}<small style="font-size:12px;color:#71869d"> °C</small>`;
+  document.getElementById("rainHint").textContent="Next 24 available forecast hours";document.getElementById("tempHint").textContent=`Current API reading · ${c.time||"time unavailable"}`;
+  document.getElementById("freshTop").textContent="Online";document.getElementById("freshHint").textContent="Live forecast API response received";
+  status.textContent="Weather forecast connected";document.getElementById("updatedAt").textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("forecastTotal").textContent=total.toFixed(1)+" mm";document.getElementById("forecastMeta").textContent="Forecast total · next 24 hours · max hourly rain probability "+maxProb+"%";
+  document.getElementById("tempRange").textContent=(daily.temperature_2m_max?.[0]!=null?Number(daily.temperature_2m_max[0]).toFixed(1):"—")+" / "+(daily.temperature_2m_min?.[0]!=null?Number(daily.temperature_2m_min[0]).toFixed(1):"—")+" °C";
+  document.getElementById("weatherOutlook").textContent=weatherCodeLabel(daily.weather_code?.[0]??c.weather_code);document.getElementById("weatherOutlookMeta").textContent="Daily forecast · "+(daily.time?.[0]||"date unavailable")+" · Open-Meteo";
+  document.getElementById("rainDriver").textContent=total.toFixed(1)+" mm forecast";document.getElementById("rainDriverBar").style.width=Math.min(100,total/50*100)+"%";
+  document.getElementById("riskTop").innerHTML=`${score}<small style="font-size:12px;color:#71869d"> /100</small>`;document.getElementById("riskFill").style.width=score+"%";document.getElementById("riskPill").textContent=score>=65?"HIGH DEMO INDEX":score>=45?"MODERATE DEMO INDEX":"LOW DEMO INDEX";
+  document.getElementById("rainAdvice").textContent=total>=20?"Forecast shows notable rainfall over the next 24 hours. Check official local advisories and monitor drainage/river levels.":"Forecast total is limited in this API window; continue monitoring official forecasts and local conditions.";
+  renderChart(arr);requestMLPrediction();checkWeatherAlert();
+  document.getElementById("dataTable").innerHTML=`<tr><td>Weather forecast</td><td>${total.toFixed(1)} mm / 24h</td><td><span class="tag">Live forecast</span></td></tr><tr><td>Current temperature</td><td>${Number(c.temperature_2m).toFixed(1)} °C</td><td><span class="tag">API</span></td></tr><tr><td>Elevation</td><td id="reportElevation">Loading DEM value</td><td><span class="tag">Elevation API</span></td></tr><tr><td>Land-cover classification</td><td id="reportLandcover">Checking ESA WorldCover</td><td><span class="tag">Land-cover layer</span></td></tr><tr><td>Historical flood labels</td><td>Querying India Flood Inventory</td><td><span class="tag">Historical dataset</span></td></tr>`;
+ }catch(e){
+  weather=null;status.textContent="Weather API unavailable";document.getElementById("updatedAt").textContent="No verified API response";document.getElementById("freshTop").textContent="Offline";document.getElementById("freshHint").textContent="Live data could not be reached";
+  document.getElementById("rainTop").innerHTML='—<small style="font-size:12px;color:#71869d"> mm</small>';document.getElementById("tempTop").innerHTML='—<small style="font-size:12px;color:#71869d"> °C</small>';
+  document.getElementById("rainHint").textContent="Forecast unavailable";document.getElementById("tempHint").textContent="Retry or check network restrictions";
+  chart.innerHTML='<div class="sub" style="padding:12px 0">Could not retrieve a verified hourly forecast. Use Refresh weather to retry; no sample rainfall is shown as live data.</div>';
+  document.getElementById("forecastTotal").textContent="Unavailable";document.getElementById("forecastMeta").textContent="No verified forecast returned";document.getElementById("tempRange").textContent="— / — °C";document.getElementById("weatherOutlook").textContent="Unavailable";document.getElementById("weatherOutlookMeta").textContent="Weather provider did not respond";document.getElementById("rainDriver").textContent="Unavailable";document.getElementById("rainDriverBar").style.width="0%";
+  document.getElementById("dataTable").innerHTML='<tr><td>Weather forecast</td><td>Unavailable — retry needed</td><td><span class="tag high">Offline</span></td></tr><tr><td>Elevation</td><td id="reportElevation">Loading DEM value</td><td><span class="tag">Elevation API</span></td></tr><tr><td>Land-cover classification</td><td id="reportLandcover">Checking ESA WorldCover</td><td><span class="tag">Land-cover layer</span></td></tr><tr><td>Historical flood labels</td><td>Querying India Flood Inventory</td><td><span class="tag">Historical dataset</span></td></tr>';
+  console.warn("FloodGuard weather fetch failed:",e);toast("Live weather could not be reached. Retry, or check whether your network blocks the weather provider.");
+ }
+}
+
+function weatherCodeLabel(code){const c=Number(code);if(!Number.isFinite(c))return "Unavailable";if(c===0)return "Clear sky";if([1,2].includes(c))return "Mainly clear / partly cloudy";if(c===3)return "Overcast";if([45,48].includes(c))return "Fog";if([51,53,55,56,57].includes(c))return "Drizzle";if([61,63,65,66,67,80,81,82].includes(c))return "Rain / showers";if([71,73,75,77,85,86].includes(c))return "Snow";if([95,96,99].includes(c))return "Thunderstorm";return "Variable conditions"}
+function renderChart(arr){const el=document.getElementById("rainChart");if(!arr.length){el.innerHTML='<span class="sub">No hourly forecast returned by the source.</span>';return}const max=Math.max(0,...arr.map(x=>x.rain));const chosen=arr.filter((x,i)=>i%3===0).slice(0,8);const zeroNote=max===0?'<div style="position:absolute;top:10px;left:12px;right:12px;padding:8px 10px;border-radius:8px;background:#f0f7ff;color:#526b88;font-size:11px;line-height:1.45">No precipitation is forecast for these hours. The small blue baseline marks 0.0 mm; this does not mean rainfall observations are unavailable.</div>':'';el.style.position="relative";el.innerHTML=zeroNote+chosen.map(x=>`<div class="baritem"><b>${x.rain.toFixed(1)}</b><i style="height:${max===0?4:Math.max(3,112*x.rain/max)}px;opacity:${x.rain===0?.55:1}" title="${x.rain.toFixed(1)} mm forecast precipitation; ${x.prob}% precipitation probability"></i><small>${new Date(x.time).toLocaleTimeString([],{hour:"numeric",hour12:true})}</small></div>`).join("")}
+function compareRegions(){if(!weather){toast("Current weather forecast isn't available yet. Refresh after connecting to the internet.");return}const name=selected;const others=Object.keys(regions).filter(x=>x!=="India"&&x!==name).slice(0,3).join(", ");toast(`Current region: ${name} · 24h forecast ${weather.total.toFixed(1)} mm. Other available regions to compare: ${others}. Select each region to load its real forecast.`)}
+function scenario(){const base=weather?.total;if(base===undefined){toast("Scenario needs current forecast data. Connect to the internet and refresh first.");return}const increased=base*1.25;toast(`SIMULATED scenario for ${selected}: +25% rainfall changes forecast total from ${base.toFixed(1)} to ${increased.toFixed(1)} mm. This is a what-if calculation, not a weather forecast.`)}
+function downloadReport(){const r=regions[selected],score=riskFor(selected),w=weather;const text=`FLOODGUARD AI — REGIONAL PROTOTYPE REPORT\nRegion: ${selected}\nRepresentative location: ${r.city} (${r.lat}, ${r.lon})\nRisk index: ${score}/100 (illustrative, not probability)\nForecast rainfall next 24 available hours: ${w?w.total.toFixed(1)+" mm":"Unavailable"}\nDaily maximum/minimum temperature: shown in dashboard when API is available\nCurrent temperature: ${w?Number(w.current.temperature_2m).toFixed(1)+" C":"Unavailable"}\nWeather source: Open-Meteo forecast API\nElevation: Open-Meteo Elevation API (Copernicus DEM GLO-90); land-cover classification / population exposure / historical flood labels: not connected\nHistorical flood labels: Not connected\nImportant: Not an official warning system. Do not use for evacuation decisions. Follow official IMD and local disaster-management advisories.\n`;const blob=new Blob([text],{type:"text/plain"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`FloodGuard_${selected.replaceAll(" ","_")}_report.txt`;a.click();URL.revokeObjectURL(a.href)}
+window.addEventListener("resize",()=>{if(map)setTimeout(()=>map.invalidateSize(),150)});
+populateSelects();initMap();
+// Automatically enable the requested map layers. Only topography and population exposure remain optional.
+if(map){setMapLayer("satellite",true);setMapLayer("worldcover",true);setMapLayer("rivers",true);setMapLayer("rainfall",true);loadIndiaBoundaries();}
+selectState("India");loadTerrain(regions.India.lat,regions.India.lon);
+</script>
+
+<script>
+const FLOODGUARD_ML_API=(location.hostname==='127.0.0.1'||location.hostname==='localhost')?'http://127.0.0.1:8000':'';
+async function checkFloodGuardModel(){
+ const status=document.getElementById('mlStatus'),msg=document.getElementById('mlMessage');
+ status.textContent='Checking…';
+ try{const r=await fetch(FLOODGUARD_ML_API+'/health',{cache:'no-store'});const d=await r.json();
+  if(!d.trained){window.floodguardMLProbability=null;status.textContent='NOT TRAINED';document.getElementById('mlProbability').textContent='Not available';document.getElementById('mlMetrics').textContent='Not evaluated';msg.textContent=d.message||'No trained model found. No prediction generated.';return false}
+  status.textContent='MODEL READY';msg.textContent='A trained model is loaded locally. The displayed estimate is for research only, not an official warning.';
+  const m=d.metrics||{};document.getElementById('mlMetrics').textContent=(m.n_test||'—')+' holdout rows';document.getElementById('mlMetricNote').textContent='Recall '+(m.recall==null?'—':(100*m.recall).toFixed(1)+'%')+' · Precision '+(m.precision==null?'—':(100*m.precision).toFixed(1)+'%')+' · Average precision '+(m.average_precision==null?'—':m.average_precision.toFixed(3));
+  requestMLPrediction();return true;
+ }catch(e){window.floodguardMLProbability=null;status.textContent='API OFFLINE';document.getElementById('mlProbability').textContent='Not available';document.getElementById('mlMetrics').textContent='Not connected';msg.textContent='Local ML API is unreachable. On the same laptop, train the model and run python app.py in the pipeline folder. If this page is opened on a phone, 127.0.0.1 points to the phone, not your laptop.';return false}
+}
+async function requestMLPrediction(){
+ const out=document.getElementById('mlProbability');if(!out)return;
+ if(!window.selectedPoint && typeof selectedPoint==='undefined'){out.textContent='Select a map point';return}
+ const pt=(typeof selectedPoint!=='undefined'&&selectedPoint)?selectedPoint:null;
+ if(!pt){out.textContent='Select a village / map point';return}
+ if(typeof weather==='undefined'||!weather||!Number.isFinite(Number(window.floodguardElevation))){out.textContent='Waiting for weather/elevation';return}
+ const vals={latitude:Number(pt.lat),longitude:Number(pt.lon),elevation_m:Number(window.floodguardElevation),month:new Date().getMonth()+1,rain_1d_mm:weather.rain1d,rain_3d_mm:weather.rain3d,rain_7d_mm:weather.rain7d,rain_14d_mm:weather.rain14d};
+ if(Object.values(vals).some(v=>v===null||v===undefined||!Number.isFinite(Number(v)))){out.textContent='Recent rainfall unavailable';return}
+ try{const r=await fetch(FLOODGUARD_ML_API+'/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(vals)});const d=await r.json();if(!r.ok||!d.trained){window.floodguardMLProbability=null;out.textContent='Not available';document.getElementById('mlStatus').textContent=d.status==='model_not_trained'?'NOT TRAINED':'API ERROR';document.getElementById('mlMessage').textContent=d.message||'No prediction returned.';return}
+ window.floodguardMLProbability=Number(d.probability);out.textContent=(100*d.probability).toFixed(1)+'%';document.getElementById('mlStatus').textContent='MODEL PREDICTION';document.getElementById('mlTarget').textContent=d.target||'Flood event likelihood · next 1–3 days';document.getElementById('mlMessage').textContent='Prediction from a trained model. Review the holdout metrics and data coverage; this is not an official warning.';
+ }catch(e){window.floodguardMLProbability=null;out.textContent='Not available';document.getElementById('mlStatus').textContent='API OFFLINE';}
+}
+
+// Browser alerts: require one explicit opt-in. Thresholds are weather-signal heuristics,
+// not official warnings or validated ML thresholds. Page must remain open for polling.
+let floodAlertsEnabled=false;
+async function enableFloodNotifications(){
+ const status=document.getElementById('notificationStatus');
+ if(!('Notification' in window)){toast('This browser does not support notifications.');return}
+ try{const permission=await Notification.requestPermission();
+  if(permission!=='granted'){toast('Allow notifications in browser settings to receive flood-signal alerts.');return}
+  floodAlertsEnabled=true;
+  const b=document.getElementById('headerAlertButton');if(b)b.textContent='✓ Alerts on';
+  toast('Flood-signal alerts enabled while this page is open.');
+  await checkWeatherAlert();
+ }catch(e){toast('Could not enable notifications here. Use the hosted HTTPS website or localhost.');}
+}
+async function checkWeatherAlert(){
+ if(!floodAlertsEnabled||!weather)return;
+ const rain=Number(weather.total),prob=Number(weather.maxProb);
+ const highRain=Number.isFinite(rain)&&rain>=50; const highChance=Number.isFinite(prob)&&prob>=70;
+ if(!highRain&&!highChance)return;
+ const place=(document.getElementById('selectedName')?.textContent||selectedPoint?.label||selected||'Selected area').trim();
+ const day=new Date().toISOString().slice(0,10); const key=`fg-alert-${place}-${day}-${highRain?'rain':''}${highChance?'prob':''}`;
+ try{if(localStorage.getItem(key))return;localStorage.setItem(key,'1')}catch(e){}
+ const body=`Weather signal for ${place}: ${Number.isFinite(rain)?rain.toFixed(1)+' mm forecast rain over the next 24 hours':'rainfall unavailable'}${highChance?`; max hourly precipitation probability ${prob}%`:''}. Check official IMD and local authority updates.`;
+ try{new Notification('FloodGuard AI — Flood Alert Signal',{body,tag:key,renotify:false});}catch(e){toast('Weather signal detected. Check official IMD and local advisories.');}
+}
+function statusText(t){ /* intentionally no persistent status text in the public dashboard */ }
+setInterval(()=>{if(floodAlertsEnabled){refreshWeather()}},15*60*1000);
+function floodAssistantContext(){
+ const name=(document.getElementById('selectedName')?.textContent||selected||'Selected location').trim();
+ const rain=weather&&Number.isFinite(Number(weather.total))?Number(weather.total):null;
+ const prob=window.floodguardMLProbability!==null && window.floodguardMLProbability!==undefined && Number.isFinite(Number(window.floodguardMLProbability))?Number(window.floodguardMLProbability):null;
+ const elev=Number.isFinite(Number(window.floodguardElevation))?Number(window.floodguardElevation):null;
+ const history=(document.getElementById('historyValue')?.textContent||'Historical flood record unavailable').trim();
+ const land=(document.getElementById('landcoverValue')?.textContent||'Land-cover class unavailable').trim();
+ const exposure=(document.getElementById('exposureValue')?.textContent||'Population/asset exposure unavailable').trim();
+ const forecastProb=weather&&Number.isFinite(Number(weather.maxProb))?Number(weather.maxProb):null;
+ return {name,rain,prob,elev,history,land,exposure,forecastProb};
+}
+function explainFloodAlert(kind){
+ const c=floodAssistantContext();let title='',lines=[];
+ if(kind==='why'){
+  title=`Why this area is being reviewed: ${c.name}`;
+  if(c.rain===null)lines.push('• The weather forecast is unavailable right now, so I cannot assess the current rainfall signal.');
+  else if(c.rain>=50)lines.push(`• The next-24-hour forecast totals ${c.rain.toFixed(1)} mm, which is a substantial rainfall signal worth checking against local conditions.`);
+  else if(c.rain>=20)lines.push(`• The next-24-hour forecast totals ${c.rain.toFixed(1)} mm. This may warrant closer monitoring, depending on drainage, soil saturation and river levels.`);
+  else lines.push(`• The next-24-hour forecast totals ${c.rain.toFixed(1)} mm. That is not a strong forecast-rainfall signal by itself; it does not rule out flooding from upstream rain or river levels.`);
+  if(c.forecastProb!==null)lines.push(`• Maximum hourly precipitation probability in the available window: ${c.forecastProb}%. This is a weather forecast field, not flood probability.`);
+  if(c.elev!==null)lines.push(`• The selected point is about ${Math.round(c.elev)} m above sea level. Elevation alone cannot tell whether the point is flood-prone; local slope and river/drainage context matter.`);
+  if(c.prob!==null)lines.push(`• The trained model API returned ${(100*c.prob).toFixed(1)}% event likelihood. Check the validation metrics and training-data coverage before relying on it.`);
+  else lines.push('• No validated ML probability is available. The dashboard’s demo risk index is not a flood probability.');
+  lines.push(`• Historical context: ${c.history}.`);
+ }else if(kind==='actions'){
+  title=`Practical next steps for ${c.name}`;
+  lines=['1. Check the latest official IMD forecast and district disaster-management notices.','2. If heavy rain is occurring, monitor local river levels, drains, underpasses and low-lying routes; never walk or drive through floodwater.','3. Keep phone charged and essential medicines/documents ready if local authorities advise preparedness.','4. Follow evacuation instructions from local authorities. Do not use this prototype alone to decide whether to evacuate.'];
+  if(c.rain!==null)lines.unshift(`Current dashboard signal: ${c.rain.toFixed(1)} mm forecast rainfall over the next 24 available hours.`);
+ }else if(kind==='data'){
+  title='What the dashboard data means';
+  lines=[`• Rainfall: ${c.rain===null?'currently unavailable':c.rain.toFixed(1)+' mm forecast over next 24 hours'}; forecast is not observed rainfall.`,`• Elevation: ${c.elev===null?'unavailable':Math.round(c.elev)+' m above sea level'}; this does not replace slope/flow-accumulation analysis.`,`• Land cover: ${c.land}.`,`• Population exposure: ${c.exposure}.`,`• Historical floods: ${c.history}.`,`• ML: ${c.prob===null?'no trained model prediction is currently available':(100*c.prob).toFixed(1)+' model-estimated event likelihood; inspect evaluation metrics and geographic coverage'}.`];
+ }else{
+  title='How reliable is this explanation?';
+  lines=['• Weather and elevation are retrieved from external APIs when those services respond. Forecasts can change.','• Historical inventory records may be district-level and may not represent the selected village precisely. Missing data does not mean zero risk.','• The demonstration risk index is not a calibrated probability.','• A model probability is shown only when the local API reports a trained model; even then, it must be evaluated on held-out locations/dates and may not generalize to every village.','• This assistant uses transparent rules over the displayed data; it does not independently verify emergency conditions.'];
+ }
+ document.getElementById('assistantAnswer').textContent=title+'\n\n'+lines.join('\n');
+ document.getElementById('assistantMode').textContent=c.prob===null?'RULE-BASED · NO ML':'MODEL DATA AVAILABLE';
+}
+function assistantQuickAsk(q){const i=document.getElementById('assistantQuestion');i.value=q;askFloodAssistant();}
+function floodKnowledgeAnswer(question){
+ const q=question.toLowerCase(),c=floodAssistantContext(),out=[];
+ const loc=c.name||'the selected area';
+ if(/hello|hi\b|hey\b|who are you|what can you do/.test(q)) return `Hello! I’m FloodGuard AI Assistant. I can explain flood causes and types, rainfall forecasts, river overflow, drainage, elevation, land cover, preparedness, map layers and the data available for ${loc}. Ask a specific question anytime.`;
+ if(/what is a flood|define flood|meaning of flood/.test(q)) return 'A flood happens when water covers land that is normally dry. Common causes include intense or prolonged rain, rivers overtopping their banks, blocked drainage, storm surge and dam or embankment failures.';
+ if(/cause|why.*flood|flooding happen|reason.*flood/.test(q)) return `Flooding can be caused by intense or prolonged rainfall, saturated soil, river levels rising upstream, blocked drains, low-lying terrain and changes in land cover. For ${loc}, the dashboard can only assess the data currently loaded; it cannot confirm an active flood. `+(c.rain===null?'Rainfall forecast is currently unavailable.':`The current forecast shown is ${c.rain.toFixed(1)} mm over the next 24 hours; this is a forecast, not an observation or flood probability.`)+(c.elev===null?'':' The selected point elevation is about '+Math.round(c.elev)+' m; elevation alone does not establish flood risk.');
+ if(/prepare|emergency kit|before.*flood|safety|protect.*home/.test(q)) return 'Flood preparedness: follow official local alerts; identify a safe route and higher ground; keep medicines, drinking water, torch, power bank, documents and essential items ready; move electrical items up if safe; help children, older people and people with disabilities. Never enter floodwater or walk/drive through it. Follow local authorities if evacuation is ordered.';
+ if(/during.*flood|what should i do|trapped|evacuat|driving|walk.*water/.test(q)) return 'During flooding: follow official evacuation instructions immediately; move to higher ground if safe; stay away from rivers, drains, culverts and submerged roads; never walk or drive through floodwater; do not touch wet electrical equipment. If trapped or in immediate danger, contact your local emergency services. Do not wait for this prototype to confirm danger.';
+ if(/after.*flood|clean.*flood|return home/.test(q)) return 'After a flood, return only when authorities say it is safe. Avoid floodwater, damaged buildings, downed wires and contaminated wells. Use safe drinking water, wear protective gear during cleanup, photograph damage when safe, and discard food exposed to floodwater. Follow public-health guidance.';
+ if(/rain|forecast|precipitation|mm/.test(q)) return `Rainfall is a contributing signal, not a flood prediction by itself. ${c.rain===null?'A usable forecast is not currently available for this location.':`The dashboard currently shows ${c.rain.toFixed(1)} mm forecast rainfall over the next 24 hours.`} ${c.forecastProb===null?'Hourly precipitation probability is unavailable.':`Maximum hourly precipitation probability shown is ${c.forecastProb}%; this is the chance of precipitation in the forecast, not the chance of flooding.`} Upstream rainfall, soil saturation, river levels and drainage can also matter.`;
+ if(/river|drain|upstream|water level/.test(q)) return 'River flooding can occur when upstream rainfall increases flow and the river exceeds its channel. Watch official river-gauge and district advisories; keep away from riverbanks, bridges and drainage channels during heavy rain. This dashboard does not directly verify live river levels unless a connected source explicitly provides them.';
+ if(/elevation|terrain|slope|topograph/.test(q)) return `Elevation is the height of a point above sea level; slope and flow accumulation help explain how water may move. ${c.elev===null?'Elevation is not available for the selected point right now.':`The current point elevation is approximately ${Math.round(c.elev)} m.`} Elevation alone cannot determine flood risk, and this prototype does not calculate a full hydrological model.`;
+ if(/land.?cover|satellite|forest|cropland|built.?up/.test(q)) return `Land cover describes what covers the ground, such as trees, cropland, built-up areas or water. Impervious built-up surfaces can increase runoff, while effects vary by soil, slope and drainage. Current land-cover status for ${loc}: ${c.land}. If the layer has not loaded, treat it as unavailable rather than assuming a class.`;
+ if(/population|people|exposure|hospital|school|asset/.test(q)) return `Population exposure means people and important assets that could be affected by flooding. Current dashboard value: ${c.exposure}. If it says unavailable, the prototype does not have verified population coverage for this location; it should not be interpreted as zero people or zero exposure.`;
+ if(/histor|past flood|previous flood|flood record/.test(q)) return `Historical records can show where floods were reported, but missing records do not mean flooding never happened. Current dashboard context for ${loc}: ${c.history}. Some public datasets are district-level, so they may not verify a particular village.`;
+ if(/map layer|layers|satellite imagery|risk zone/.test(q)) return 'Map layers provide different context: satellite imagery shows surface appearance; topographic maps show terrain and place context; land-cover classes classify surface types; rivers/drainage show mapped watercourses; rainfall is a forecast at a selected point; population exposure needs a verified population dataset. Illustrative risk zones are not official warnings.';
+ if(/accuracy|reliable|confidence|probability|model|machine learning|ai/.test(q)) return 'A reliable flood-event model needs verified flood and non-flood labels, time-aligned rainfall and terrain features, and testing on dates and locations not used for training. A high accuracy score alone can hide missed floods. This prototype must not claim a validated village-level probability unless a trained model and independent evaluation report are actually available.';
+ if(/warning|alert|notification/.test(q)) return 'FloodGuard notifications are prototype weather-signal alerts, not official flood warnings. Browser notifications require permission and the page may need to remain open. Check official IMD forecasts and local disaster-management advisories for authoritative alerts.';
+ if(/climate change|urban flood|flash flood|coastal flood|types of flood/.test(q)) return 'Common flood types include riverine flooding (rivers overflow), flash flooding (rapid runoff after intense rain), urban flooding (drainage cannot handle runoff), and coastal flooding (storm surge or high coastal water). Climate change can intensify some heavy-rainfall and coastal-flood hazards, while local impacts depend on geography and infrastructure.';
+ return `I can help with flood causes, rainfall forecasts, river overflow, flash and urban floods, preparedness, safety, elevation, land cover, population exposure, historical records, map layers, notifications and ML reliability. For ${loc}, available dashboard context: rainfall ${c.rain===null?'unavailable':c.rain.toFixed(1)+' mm forecast / 24h'}, elevation ${c.elev===null?'unavailable':Math.round(c.elev)+' m'}, land cover ${c.land}, historical context ${c.history}. Ask a more specific question and I’ll explain it. For urgent safety decisions, use official IMD and local authority guidance.`;
+}
+async function askFloodAssistant(){
+ const input=document.getElementById('assistantQuestion'),q=(input.value||'').trim();if(!q){explainFloodAlert('why');return}
+ const answer=document.getElementById('assistantAnswer'),mode=document.getElementById('assistantMode');
+ answer.textContent='Thinking…';mode.textContent='ASSISTANT';
+ const c=floodAssistantContext();
+ try{
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);
+  const res=await fetch('/assistant',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,context:{location:c.name,rainfall_mm_24h:c.rain,precipitation_probability:c.forecastProb,elevation_m:c.elev,land_cover:c.land,exposure:c.exposure,historical_flood_context:c.history}}),signal:controller.signal});clearTimeout(timer);
+  if(res.ok){const data=await res.json();if(data.answer){answer.textContent=data.answer;mode.textContent=data.mode==='ai'?'AI ASSISTANT':'FLOOD ASSISTANT';return}}
+ }catch(e){}
+ answer.textContent=floodKnowledgeAnswer(q);mode.textContent='FLOOD ASSISTANT';
+}
+// ML status is intentionally not shown in the public-facing prototype.
+function openFloodAlertCenter(){
+  const btn=document.getElementById('floodAlertFab');
+  const target=document.getElementById('rain-panel')||document.getElementById('alert-assistant')||document.getElementById('dashboard');
+  if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+  const h=document.getElementById('headerAlertButton');
+  if('Notification' in window && Notification.permission==='granted'){
+    toast('Flood alerts are enabled. Weather-signal checks run while this dashboard is open.');
+  } else if(h) {
+    enableFloodNotifications();
+  }
+}
+
+// Flood alerts are driven by forecast signals only until verified labels support a validated model.
+</script>
+
+</body></html>
